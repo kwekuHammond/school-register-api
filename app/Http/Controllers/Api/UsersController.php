@@ -8,6 +8,8 @@ use App\Models\users;
 use Illuminate\Http\Request;
 use Nette\Utils\Json;
 
+use function PHPUnit\Framework\isEmpty;
+
 class UsersController extends Controller
 {
     /**
@@ -43,11 +45,37 @@ class UsersController extends Controller
         $request = users::create($usersRequest->all());
 
         return response()->json([
-            'status'=>true,
-            'message'=> 'User Added Successfully',
-            'user'=>$request
+            'status' => true,
+            'message' => 'User Added Successfully',
+            'user' => $request
         ], 200);
     }
+
+    /**
+     * Display the specified resource from search.
+     *
+     * @param  \App\Models\users  $users
+     * @return \Illuminate\Http\Response
+     */
+    public function search($request)
+    {
+        $user = users::where('fullname', 'LIKE', '%'.$request.'%')->get()->except(['password']);
+
+        if (!isEmpty($user)) {
+            return response()->json([
+                'status' => true,
+                'message' => 'user found',
+                'user' => $user
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => true,
+                'message' => 'no user found',
+                'user' =>[]
+            ], 200);
+        }
+    }
+
 
     /**
      * Display the specified resource.
@@ -60,9 +88,9 @@ class UsersController extends Controller
         $user = users::findorFail($id);
 
         return response()->json([
-            'status'=>true,
-            'message'=> 'User Updated Successfully',
-            'user'=>['Full Name'=>$user->fullname, 'Email'=>$user->email]
+            'status' => true,
+            'message' => 'User Updated Successfully',
+            'user' => ['Full Name' => $user->fullname, 'Email' => $user->email]
         ], 200);
     }
 
@@ -91,9 +119,9 @@ class UsersController extends Controller
         $user->update($request->all());
 
         return response()->json([
-            'status'=>true,
-            'message'=> 'User Updated Successfully',
-            'user'=>['Full Name'=>$user->fullname, 'Email'=>$user->email]
+            'status' => true,
+            'message' => 'User Updated Successfully',
+            'user' => ['Full Name' => $user->fullname, 'Email' => $user->email]
         ], 200);
     }
 
@@ -103,15 +131,15 @@ class UsersController extends Controller
      * @param  \App\Models\users  $users
      * @return \Illuminate\Http\Response
      */
-    public function destroy(users $users,$id)
+    public function destroy(users $users, $id)
     {
         $user = $users::findorFail($id);
         $user->delete();
 
         return response()->json([
-            'status'=>true,
-            'message'=> 'User Deleted Successfully',
-            'user'=>$user
+            'status' => true,
+            'message' => 'User Deleted Successfully',
+            'user' => $user
         ], 200);
     }
 }
