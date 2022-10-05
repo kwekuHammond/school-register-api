@@ -23,4 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('users', UsersController::class);
 
 //search route
-Route::get('users/search/{userName}', [UsersController::class, 'search']);
+// Route::middleware('auth:sanctum')->get('users/search/{userName}', [UsersController::class, 'search']);
+
+//Routes we want to protect goes here
+Route::group(['middleware'=>['auth:sanctum']], function(){
+    Route::get('users/search/{userName}', [UsersController::class, 'search']);
+});
