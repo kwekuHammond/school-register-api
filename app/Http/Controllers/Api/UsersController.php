@@ -19,9 +19,13 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $Users = users::all()->except(['password']);
+        $Users = users::all()->makeHidden(['password']);
         //return json_encode($Users);
-        return response()->json($Users);
+        return response()->json([
+            'status' => true,
+            'messages'=> 'number of records: ' . $Users->count(),
+            'data' =>$Users
+        ]);
     }
 
     /**
@@ -59,21 +63,13 @@ class UsersController extends Controller
      */
     public function search($request)
     {
-        $user = users::where('fullname', 'LIKE', '%'.$request.'%')->get()->except(['password']);
+        $user = users::where('fullname', 'LIKE', '%' . $request . '%')->get()->except(['password']);
 
-        if (!isEmpty($user)) {
             return response()->json([
                 'status' => true,
-                'message' => 'user found',
+                'message' =>'Number of users found: ' .  $user->count(),
                 'user' => $user
             ], 200);
-        }else{
-            return response()->json([
-                'status' => true,
-                'message' => 'no user found',
-                'user' =>[]
-            ], 200);
-        }
     }
 
 
@@ -131,15 +127,23 @@ class UsersController extends Controller
      * @param  \App\Models\users  $users
      * @return \Illuminate\Http\Response
      */
-    public function destroy(users $users, $id)
+    public function destroy($id)
     {
-        $user = $users::findorFail($id);
-        $user->delete();
+        $user = users::find($id);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'User Deleted Successfully',
-            'user' => $user
-        ], 200);
+        if ($user !== null) {
+            $user->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'User Deleted Successfully',
+                // 'user' => $user
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'User Not Found',
+                // 'user' => $user
+            ], 200);
+        }
     }
 }
